@@ -1,49 +1,104 @@
 import streamlit as st
+import google.generativeai as genai
+import os
+import re
 
-st.set_page_config(page_title="AI Code Reviewer", page_icon="🤖")
+# 🔐 Configure API Key
+genai.configure(api_key=os.getenv("AIzaSyDzk1piIb4DAuqBr3Asb4xXRR5O_2B9kgw"))
+
+# 🤖 Load Model
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+# 🎯 Page Config
+st.set_page_config(page_title="AI Code Reviewer", layout="wide")
 
 st.title("🤖 AI Code Reviewer")
-st.write("Paste your code below and get feedback instantly!")
+st.markdown("""
+Analyze your code using AI to detect bugs, improve readability, and optimize performance.
+""")
 
-code = st.text_area("Paste your code here:")
+# 🌐 Language selection
+language = st.selectbox(
+    "Select Programming Language",
+    ["Python", "JavaScript", "C++", "Java", "Other"]
+)
 
-if st.button("Analyze Code"):
+# 💻 Code input
+code = st.text_area("Paste your code here", height=300)
+
+# 🧠 AI Function
+def review_code_ai(code, language):
+    prompt = f"""
+You are a senior software engineer.
+
+Review the following {language} code and provide:
+
+1. Bugs
+2. Improvements
+3. Readability suggestions
+4. Optimization tips
+5. Code quality score out of 10
+6. Short reason for score
+
+Format:
+
+Score: X/10
+Reason: ...
+
+Bugs:
+- ...
+
+Improvements:
+- ...
+
+Readability:
+- ...
+
+Optimization:
+- ...
+
+Code:
+{code}
+"""
+
+    response = model.generate_content(prompt)
+    return response.text
+
+# 🚀 Button Action
+if st.button("🔍 Analyze Code"):
     if code.strip() == "":
         st.warning("Please paste some code first!")
     else:
-        st.subheader("AI Review")
+        st.info("🧠 AI is analyzing your code...")
 
-        # Simple logic (no API needed)
-        if "print" not in code:
-            st.write("**Bugs:**\n- Missing print statement")
-        else:
-            st.write("**Bugs:**\n- No major issues found")
+        result = review_code_ai(code, language)
 
-        st.write("**Improvements:**\n- Improve formatting and readability")
-        st.write("**Optimization:**\n- Use better structure and naming")
-        # 🎯 Simple scoring logic
-score = 10
+        # 📊 Extract Score
+        score_match = re.search(r"Score:\s*(\d+)/10", result)
 
-if "print" not in code:
-    score -= 2
-if len(code) < 20:
-    score -= 2
-if "for" in code and "range" in code:
-    score -= 1
+        if score_match:
+            score = int(score_match.group(1))
 
-st.markdown("## 📊 Code Quality Score")
-st.progress(score * 10)
-st.metric("Score", f"{score}/10")
+            st.markdown("## 📊 Code Quality Score")
+            st.progress(score * 10)
+            st.metric("Score", f"{score}/10")
 
-# Feedback based on score
-if score >= 8:
-    st.success("Excellent code quality 🚀")
-elif score >= 5:
-    st.warning("Decent but needs improvement ⚡")
-else:
-    st.error("Poor quality code ❌")
-    
-bugs = "- Missing print statement" if "print" not in code else "- No major issues"
-improvements = "- Improve formatting and readability"
-st.caption("AI integration planned using LLM APIs (OpenAI / Gemini)")
+            if score >= 8:
+                st.success("Excellent code quality 🚀")
+            elif score >= 5:
+                st.warning("Decent but needs improvement ⚡")
+            else:
+                st.error("Poor quality code ❌")
 
+        # 🧠 AI Output
+        st.markdown("### 🧠 AI Review")
+        st.write(result)
+
+        # 💻 Show Code
+        st.markdown("### 💻 Your Code")
+        st.code(code, language=language.lower())
+
+        st.divider()
+
+# 📌 Footer
+st.caption("Built using Streamlit + Google Gemini AI")
