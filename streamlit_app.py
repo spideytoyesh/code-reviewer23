@@ -7,7 +7,33 @@ import re
 genai.configure(api_key=os.getenv("AIzaSyDzk1piIb4DAuqBr3Asb4xXRR5O_2B9kgw"))
 
 # 🤖 Load Model
-model = genai.GenerativeModel("gemini-1.5-flash-latest")
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+def review_code_ai(code, language):
+    try:
+        model = genai.GenerativeModel("gemini-pro")  # ✅ MOST STABLE
+
+        prompt = f"""
+        Review this {language} code and provide:
+
+        - Bugs
+        - Improvements
+        - Readability
+        - Optimization
+        - Score out of 10
+
+        Code:
+        {code}
+        """
+
+        response = model.generate_content(prompt)
+        return response.text
+
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 # 🎯 Page Config
 st.set_page_config(page_title="AI Code Reviewer", layout="wide")
