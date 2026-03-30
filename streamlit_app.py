@@ -45,4 +45,5 @@ else:
     
 bugs = "- Missing print statement" if "print" not in code else "- No major issues"
 improvements = "- Improve formatting and readability"
+st.caption("AI integration planned using LLM APIs (OpenAI / Gemini)")
 
