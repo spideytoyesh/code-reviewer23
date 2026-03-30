@@ -7,7 +7,7 @@ import re
 genai.configure(api_key=os.getenv("AIzaSyDzk1piIb4DAuqBr3Asb4xXRR5O_2B9kgw"))
 
 # 🤖 Load Model
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
 # 🎯 Page Config
 st.set_page_config(page_title="AI Code Reviewer", layout="wide")
